@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     // 3. INITIALIZE DEEPSEEK CLIENT (THE ONLY MAJOR CHANGE)
     // Use your DeepSeek API key from the platform
     const deepseek = new OpenAI({
-      apiKey: process.env.DEEPSEEK_API_KEY, // ✅ Set this in Vercel
+      apiKey: process.env.sk-35b3477fc8de42a89e97a91af64642e6, // ✅ Set this in Vercel
       baseURL: 'https://api.deepseek.com', // ✅ DeepSeek's endpoint
     });
 
