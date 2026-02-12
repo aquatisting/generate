@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snoopy's Valentine surprise · for you 💌</title>
+  <!-- Font Awesome 6 (free dog & hearts) + Google Font for cuteness -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- canvas-confetti for happy YES sparkles -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #ffe6f0 0%, #ffd9e8 100%);
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* floating hearts background (surprise detail) */
+    .heart-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .heart-bg i {
+      position: absolute;
+      color: rgba(255, 120, 160, 0.2);
+      font-size: 24px;
+      animation: float 6s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    .card {
+      max-width: 750px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 60px 60px 60px 60px;
+      box-shadow: 0 20px 40px rgba(218, 112, 147, 0.25);
+      padding: 40px 30px;
+      border: 2px solid white;
+      position: relative;
+      z-index: 10;
+      transition: 0.3s;
+      text-align: center;
+    }
+
+    /* snoopy character area — big & huggable */
+    .snoopy-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .snoopy-container:active {
+      transform: scale(0.97);
+    }
+
+    .snoopy-icon {
+      font-size: 120px;
+      color: #3a2c1f;
+      text-shadow: 6px 6px 0 rgba(255, 140, 170, 0.3);
+      background: #f0e6d2;
+      width: 160px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 8px solid white;
+      box-shadow: 0 10px 0 #bba88b, 0 15px 30px rgba(0,0,0,0.1);
+      margin-bottom: 5px;
+    }
+
+    .snoopy-name {
+      font-size: 28px;
+      font-weight: 700;
+      background: white;
+      padding: 6px 25px;
+      border-radius: 40px;
+      box-shadow: 0 5px 0 #fba9c4;
+      color: #553b1f;
+      letter-spacing: 2px;
+      margin-top: -5px;
+      border: 2px solid #ffb6c1;
+    }
+
+    /* speech bubble — where Snoopy talks */
+    .speech-bubble {
+      background: white;
+      border-radius: 40px 40px 40px 5px;
+      padding: 25px 25px;
+      margin: 30px 0 25px;
+      border: 4px solid #ff90a5;
+      box-shadow: 0 10px 0 #d46b7a;
+      position: relative;
+      font-size: 28px;
+      font-weight: 700;
+      color: #3a2c1f;
+      transition: all 0.3s ease;
+      word-break: break-word;
+    }
+
+    .speech-bubble:before {
+      content: "🐾";
+      position: absolute;
+      bottom: -30px;
+      left: 20px;
+      font-size: 40px;
+      transform: rotate(-15deg);
+    }
+
+    /* question & choices */
+    .valentine-question {
+      font-size: 32px;
+      font-weight: 700;
+      color: #b34167;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 0 #ffe0f0;
+    }
+
+    .choices-area {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    /* basic button style */
+    .btn {
+      border: none;
+      background: white;
+      padding: 16px 30px;
+      border-radius: 100px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #592c22;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 0 #c9a9a0, 0 10px 20px rgba(0,0,0,0.1);
+      transition: all 0.08s linear;
+      border: 3px solid #ffe9f0;
+      cursor: pointer;
+    }
+
+    .btn i {
+      font-size: 26px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #b5837a, 0 15px 25px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #b5837a;
+    }
+
+    /* yes / absolutely: happy pink */
+    .btn-yes {
+      background: #ffb3c6;
+      color: #59001f;
+    }
+
+    .btn-absolutely {
+      background: #ffccd9;
+    }
+
+    /* maybe: dreamy */
+    .btn-maybe {
+      background: #e0c4f0;
+    }
+
+    /* NO – tricky button, will move! */
+    .btn-no {
+      background: #fee0d0;
+      color: #712e25;
+      position: relative;
+      transition: left 0.1s ease, top 0.1s ease;
+    }
+
+    /* extra surprise zone */
+    .secret-message {
+      margin-top: 30px;
+      padding: 15px;
+      background: rgba(255, 255, 240, 0.7);
+      border-radius: 50px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #b34167;
+      border: 2px dashed #ff8da1;
+      transition: 0.2s;
+    }
+
+    .hidden {
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.2s;
+    }
+
+    .visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* clickable snoopy extra response */
+    .snoopy-hint {
+      font-size: 16px;
+      color: #a05c5c;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* responsive */
+    @media (max-width: 550px) {
+      .card { padding: 25px 15px; }
+      .snoopy-icon { font-size: 90px; width: 130px; height: 130px; }
+      .btn { padding: 12px 20px; font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- floating hearts background (surprise layer) -->
+  <div class="heart-bg" id="heartBg"></div>
+
+  <!-- MAIN CARD: Snoopy asks YOU -->
+  <div class="card">
+    <!-- SNOOPY character – interactive! click him for secret response -->
+    <div class="snoopy-container" id="snoopyClick">
+      <div class="snoopy-icon">
+        <img><img src="YOUR_SNOOPY_IMAGE.jpg" 
+         alt="Snoopy" 
+         style="width:100%; height:100%; object-fit:cover; border-radius:50%;"></img> <!-- Snoopy as a classic dog icon + floppy ears vibe -->
+      </div>
+      <span class="snoopy-name">SNOOPY</span>
+      <span class="snoopy-hint">✨ pet me ✨</span>
+    </div>
+
+    <!-- speech bubble – dynamic message changes -->
+    <div class="speech-bubble" id="snoopyMessage">
+      Will you be my Valentine? 💘
+    </div>
+
+    <!-- the big question -->
+    <div class="valentine-question">
+      💗 you + me ? 💗
+    </div>
+
+    <!-- ALL POSSIBLE CHOICES — interactive responses -->
+    <div class="choices-area" id="choiceButtons">
+      <!-- YES choice -->
+      <button class="btn btn-yes" id="btnYes"><i class="fas fa-heart"></i> Yes</button>
+      <!-- ABSOLUTELY! choice -->
+      <button class="btn btn-absolutely" id="btnAbsolutely"><i class="fas fa-heart-circle-check"></i> Absolutely!</button>
+      <!-- MAYBE choice – sweet & patient -->
+      <button class="btn btn-maybe" id="btnMaybe"><i class="fas fa-cloud-moon"></i> Maybe...</button>
+      <!-- NO choice – this one is SNEAKY: moves away on hover & click is a challenge -->
+      <button class="btn btn-no" id="btnNo"><i class="fas fa-ban"></i> No</button>
+    </div>
+
+    <!-- secret final message – appears after YES or after many tries ;) -->
+    <div class="secret-message hidden" id="secretMessage">
+      🎀 You are my Valentine! · Snoopy loves you! 🎀
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // -------  SNOOPY VALENTINE : ALL POSSIBLE INTERACTIONS --------
+      // 1. clicking YES -> happy snoopy, confetti, love message
+      // 2. clicking ABSOLUTELY -> same joyful reaction
+      // 3. clicking MAYBE -> patient, hopeful reply
+      // 4. clicking NO -> extremely playful: button dodges cursor!
+      //    also if she manages to click it -> sad snoopy but second chance
+      // 5. clicking on SNOOPY himself -> secret funny/romantic line
+      // 6. floating hearts background surprise + confetti on positive answer
+      // 7. secret love letter reveal after YES or after many NO dodges (easter egg)
+      // -------------------------------------------------------------
+
+      // get elements
+      const snoopyMsg = document.getElementById('snoopyMessage');
+      const btnYes = document.getElementById('btnYes');
+      const btnAbsolutely = document.getElementById('btnAbsolutely');
+      const btnMaybe = document.getElementById('btnMaybe');
+      const btnNo = document.getElementById('btnNo');
+      const snoopyIcon = document.getElementById('snoopyClick');
+      const secretDiv = document.getElementById('secretMessage');
+      const heartBg = document.getElementById('heartBg');
+
+      // ---------- HELPER: confetti explosion (happy) ----------
+      function burstConfetti() {
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 },
+          startVelocity: 25,
+          colors: ['#ffb3c6', '#ff8da1', '#fba9c4', '#ffffff', '#ffd166']
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 60,
+            spread: 50,
+            origin: { y: 0.5, x: 0.2 }
+          });
+          confetti({
+            particleCount: 60,
+            spread: 50,
+            origin: { y: 0.5, x: 0.8 }
+          });
+        }, 120);
+      }
+
+      // ---------- reveal secret valentine message ----------
+      function showSecretLove() {
+        secretDiv.classList.remove('hidden');
+        secretDiv.classList.add('visible');
+        // also add extra cute message in speech bubble
+        snoopyMsg.innerHTML = 'Yay! You + me = 💖 best valentines!';
+        // keep it special
+      }
+
+      // ---------- YES / Absolutely handler (happy positive) ----------
+      function happyYesHandler() {
+        snoopyMsg.innerHTML = 'WOOF! You made my beagle heart so happy! 🥰🐶💕';
+        burstConfetti();
+        showSecretLove();
+        // also extra hearts appear on bg (adding more)
+        addFloatingHearts(6);
+      }
+
+      // ---------- MAYBE handler (sweet & patient) ----------
+      function maybeHandler() {
+        snoopyMsg.innerHTML = 'Take your time, I’ll be right here on my doghouse, dreaming of you! ☁️✨🐾';
+        // no confetti, but some soft hearts appear
+        addFloatingHearts(3);
+        // if secret message was hidden, keep hidden, but maybe show tiny hope
+        secretDiv.classList.add('hidden');
+        secretDiv.classList.remove('visible');
+      }
+
+      // ---------- NO BUTTON: MOVING DODGE + SAD/CLICK HANDLER ----------
+      // moving logic — the button runs away from mouse
+      let noClickAttempts = 0;      // count how many times she tried to click no
+      let noHoverCount = 0;        // for dodge messages
+
+      function moveNoButton() {
+        const container = document.querySelector('.choices-area');
+        const noBtn = btnNo;
+        if (!container || !noBtn) return;
+
+        const containerRect = container.getBoundingClientRect();
+        const btnRect = noBtn.getBoundingClientRect();
+
+        // max positions so button stays inside container
+        const maxX = containerRect.width - btnRect.width;
+        const maxY = containerRect.height - btnRect.height;
+
+        let newX = Math.random() * maxX;
+        let newY = Math.random() * maxY;
+
+        // keep within container bounds
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+
+        noBtn.style.position = 'absolute';
+        noBtn.style.left = newX + 'px';
+        noBtn.style.top = newY + 'px';
+
+        // after moving, sometimes Snoopy says something funny (but not every time)
+        if (Math.random() > 0.6) {
+          const dodgeMessages = [
+            '😅 You cannot escape my love!',
+            '🦴 try again, hehe',
+            '✋ no? .. too late!',
+            '🐕 I’m right here!',
+            '💘 be my valentine!'
+          ];
+          snoopyMsg.innerHTML = dodgeMessages[Math.floor(Math.random() * dodgeMessages.length)];
+        }
+        noHoverCount++;
+      }
+
+      // when mouse enters NO button -> run away!
+      if (btnNo) {
+        btnNo.addEventListener('mouseenter', function(e) {
+          moveNoButton();
+        });
+      }
+
+      // if somehow she actually clicks the NO button (persistent!)
+      btnNo.addEventListener('click', function(e) {
+        e.stopPropagation();
+        noClickAttempts++;
+
+        if (noClickAttempts === 1) {
+          snoopyMsg.innerHTML = 'Oh ... you broke my heart a little. 😔💔 But I still love you! try again?';
+        } else if (noClickAttempts === 2) {
+          snoopyMsg.innerHTML = 'No?? Really? 😭 ... I’ll just wait here with my supper disk.';
+        } else if (noClickAttempts >= 3) {
+          // third time's the charm – it becomes a YES! (surprise twist)
+          snoopyMsg.innerHTML = 'Okay okay — you’re just playing hard to get! I KNOW you love me. 💘🐾';
+          burstConfetti();
+          showSecretLove();  // secret message appears! (she said yes indirectly)
+          // also turn the NO button into YES? we can change text :)
+          btnNo.innerHTML = '<i class="fas fa-heart"></i> Yes! (you got me)';
+          btnNo.classList.remove('btn-no');
+          btnNo.classList.add('btn-yes');
+          btnNo.style.position = 'relative'; // reset position
+          btnNo.style.left = 'auto';
+          btnNo.style.top = 'auto';
+          // disable dodge
+          btnNo.removeEventListener('mouseenter', moveNoButton);
+          // make it a yes button :)
+          btnNo.addEventListener('click', happyYesHandler);
+        }
+        // extra sad hearts
+        addFloatingHearts(2);
+      });
+
+      // ---------- SNOOPY (pet him!) hidden interaction ----------
+      snoopyIcon.addEventListener('click', function() {
+        const snoopyLines = [
+          '🐶 *wag tail* I love you!',
+          '❤️ you’re my favorite human.',
+          '💌 be mine? (you already know!)',
+          '☁️ dreaming of you...',
+          '🎾 let’s be valentines!'
+        ];
+        const randomLine = snoopyLines[Math.floor(Math.random() * snoopyLines.length)];
+        snoopyMsg.innerHTML = randomLine;
+        addFloatingHearts(2);
+        // also wiggle snoopy
+        const icon = document.querySelector('.snoopy-icon');
+        icon.style.transform = 'rotate(5deg)';
+        setTimeout(() => icon.style.transform = 'rotate(-5deg)', 80);
+        setTimeout(() => icon.style.transform = 'rotate(0deg)', 160);
+      });
+
+      // ---------- YES BUTTON CLICK ----------
+      btnYes.addEventListener('click', function() {
+        happyYesHandler();
+      });
+
+      // ---------- ABSOLUTELY BUTTON CLICK ----------
+      btnAbsolutely.addEventListener('click', function() {
+        snoopyMsg.innerHTML = 'ABSOLUTELY!? You’re the best! I’ll bring you a valentine bone! 🦴❤️';
+        burstConfetti();
+        showSecretLove();
+        addFloatingHearts(6);
+      });
+
+      // ---------- MAYBE BUTTON CLICK ----------
+      btnMaybe.addEventListener('click', function() {
+        maybeHandler();
+      });
+
+      // ---------- UTILS: generate floating bg hearts (extra surprise) ----------
+      function addFloatingHearts(count = 4) {
+        for (let i = 0; i < count; i++) {
+          const heart = document.createElement('i');
+          heart.classList.add('fas', 'fa-heart');
+          heart.style.left = Math.random() * 100 + '%';
+          heart.style.top = Math.random() * 100 + '%';
+          heart.style.fontSize = (15 + Math.random() * 40) + 'px';
+          heart.style.animationDuration = (4 + Math.random() * 6) + 's';
+          heart.style.color = `rgba(255, ${120 + Math.floor(Math.random() * 60)}, 160, 0.3)`;
+          heartBg.appendChild(heart);
+          // remove after animation to avoid too many
+          setTimeout(() => {
+            if (heart && heart.remove) heart.remove();
+          }, 7000);
+        }
+      }
+
+      // generate some initial floating hearts softly
+      for (let i = 0; i < 12; i++) {
+        setTimeout(() => addFloatingHearts(1), i * 150);
+      }
+
+      // ---------- make sure NO button starts in normal flow (relative) ----------
+      window.addEventListener('load', function() {
+        btnNo.style.position = 'relative';
+        btnNo.style.left = 'auto';
+        btnNo.style.top = 'auto';
+      });
+
+      // ---------- reset dodge if window resizes (prevents button from escaping container) ----------
+      window.addEventListener('resize', function() {
+        btnNo.style.position = 'relative';
+        btnNo.style.left = 'auto';
+        btnNo.style.top = 'auto';
+      });
+
+      // ---------- extra: click on secret message itself does nothing but cute ----------
+      secretDiv.addEventListener('click', function() {
+        if (secretDiv.classList.contains('visible')) {
+          snoopyMsg.innerHTML = 'I knew it all along! 🎀🐕💗';
+        }
+      });
+
+      // ---------- BONUS CHOICE: if she clicks the background card? not needed but extra ----------
+      // everything is now ready!
+
+    })();
+  </script>
+
+  <!-- tiny extra: manual heart fallback (more love) -->
+  <div style="display: none;">endless love for snoopy & you</div>
+</body>
+</html>
